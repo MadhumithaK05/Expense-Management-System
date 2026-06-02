@@ -34,7 +34,7 @@ public class ExpenseController {
     //get all expenses
     @GetMapping("")
     ResponseEntity<Iterable<Expense>> getAllExpenses() {
-        return new ResponseEntity<>(expenseService.getAllExpenses(), HttpStatus.OK);
+        return new ResponseEntity<>(expenseService.getMyExpenses(), HttpStatus.OK);
     }
 
     //get expense by id
