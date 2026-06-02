@@ -19,25 +19,26 @@ import Backend.ExpenseManagementSystem.service.ExpenseService;
 
 @RestController
 @RequestMapping("/v1/expenses")
+@SuppressWarnings("unused")
 public class ExpenseController {
 
     @Autowired
     private ExpenseService expenseService;
 
     //insert expense
-    @PostMapping("/add")
+    @PostMapping("")
     ResponseEntity<Expense> addExpense(@RequestBody Expense expense) {
         return new ResponseEntity<>(expenseService.addExpense(expense), HttpStatus.CREATED);
     }
 
     //get all expenses
-    @GetMapping("/all")
+    @GetMapping("")
     ResponseEntity<Iterable<Expense>> getAllExpenses() {
         return new ResponseEntity<>(expenseService.getAllExpenses(), HttpStatus.OK);
     }
 
     //get expense by id
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     ResponseEntity<Expense> getExpense(@PathVariable Long id) {
         return new ResponseEntity<>(expenseService.getExpenseById(id), HttpStatus.OK);
     }

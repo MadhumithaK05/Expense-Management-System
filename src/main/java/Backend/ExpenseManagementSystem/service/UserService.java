@@ -1,0 +1,42 @@
+package Backend.ExpenseManagementSystem.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import Backend.ExpenseManagementSystem.entity.User;
+import Backend.ExpenseManagementSystem.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public User addUser(User user) {
+        log.info("Adding new user: {}", user.getName());
+        return userRepository.save(user);
+    }
+
+    public Iterable<User> getAllUsers() {
+        log.info("Fetching all users");
+        return userRepository.findAll();
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public User updateUser(Long id, User updatedUser) {
+        return userRepository.findById(id).map(user -> {
+            user.setName(updatedUser.getName());
+            user.setEmail(updatedUser.getEmail());
+            return userRepository.save(user);
+        }).orElse(null);
+    }
+}
