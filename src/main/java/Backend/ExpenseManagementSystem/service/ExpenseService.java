@@ -1,44 +1,68 @@
 package Backend.ExpenseManagementSystem.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import Backend.ExpenseManagementSystem.dto.ExpenseRequest;
+import Backend.ExpenseManagementSystem.dto.ExpenseResponse;
 import Backend.ExpenseManagementSystem.entity.Expense;
 import Backend.ExpenseManagementSystem.entity.User;
 import Backend.ExpenseManagementSystem.repository.ExpenseRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ExpenseService {
 
-    @Autowired
-    private ExpenseRepository expenseRepository;
-    @Autowired
-    private UserService userService;
+    private final ExpenseRepository expenseRepository;
+    private final UserService userService;
 
-    public Expense addExpense(Expense expense) {
+    public ExpenseResponse addExpense(ExpenseRequest expense) {
         User currentUser = userService.getCurrentUser();
-        expense.setUser(currentUser);
-        log.info("Adding new expense: {}", expense.getTitle());
-        return expenseRepository.save(expense);
+        Expense expenseEntity = Expense.builder()
+                .title(expense.getTitle())
+                .amount(expense.getAmount())
+                .user(currentUser)
+                .build();
+        log.info("Adding new expense: {}", expenseEntity.getTitle());
+        Expense savedExpense = expenseRepository.save(expenseEntity);
+        return ExpenseResponse.builder()
+                .id(savedExpense.getId())
+                .title(savedExpense.getTitle())
+                .amount(savedExpense.getAmount())
+                .build();
     }
 
-    public List<Expense> getMyExpenses() {
+    public List<ExpenseResponse> getMyExpenses() {
         User currentUser = userService.getCurrentUser();
-        return expenseRepository.findByUser(currentUser);
+        return expenseRepository.findByUser(currentUser).stream()
+                .map(expense -> ExpenseResponse.builder()
+                .id(expense.getId())
+                .title(expense.getTitle())
+                .amount(expense.getAmount())
+                .build())
+                .collect(Collectors.toList());
     }
 
-    public Expense getExpenseById(Long id) {
+    public ExpenseResponse getExpenseById(Long id) {
         User currentUser = userService.getCurrentUser();
         return expenseRepository
                 .findByIdAndUser(id, currentUser)
-                .orElse(null);
+                .map(expense -> ExpenseResponse.builder()
+                .id(expense.getId())
+                .title(expense.getTitle())
+                .amount(expense.getAmount())
+                .build())
+                .orElseThrow(()
+                        -> new RuntimeException("Expense not found"));
     }
 
     public void deleteExpense(Long id) {
@@ -50,21 +74,31 @@ public class ExpenseService {
         expenseRepository.delete(expense);
     }
 
-    public Expense updateExpense(Long id, Expense updatedExpense) {
+    @Transactional
+    public ExpenseResponse updateExpense(Long id, ExpenseRequest updatedExpense) {
         User currentUser = userService.getCurrentUser();
         return expenseRepository
                 .findByIdAndUser(id, currentUser)
                 .map(expense -> {
                     expense.setTitle(updatedExpense.getTitle());
                     expense.setAmount(updatedExpense.getAmount());
-                    return expenseRepository.save(expense);
+                    return ExpenseResponse.builder()
+                        .id(expense.getId())
+                        .title(expense.getTitle())
+                        .amount(expense.getAmount())
+                        .build();
                 })
-                .orElse(null);
+                .orElseThrow(()
+                        -> new RuntimeException("Expense not found"));
     }
 
-    public Page<Expense> getExpensesinPage(int page, int size) {
+    public Page<ExpenseResponse> getExpensesInPage(int page, int size) {
         User currentUser = userService.getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
-        return expenseRepository.findByUser(currentUser, pageable);
+        return expenseRepository.findByUser(currentUser, pageable).map(expense -> ExpenseResponse.builder()
+                .id(expense.getId())
+                .title(expense.getTitle())
+                .amount(expense.getAmount())
+                .build());
     }
 }

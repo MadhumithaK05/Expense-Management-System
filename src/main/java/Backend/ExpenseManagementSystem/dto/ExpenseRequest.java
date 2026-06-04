@@ -1,30 +1,20 @@
 package Backend.ExpenseManagementSystem.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ExpenseRequest {
-    private String description;
+    @NotBlank(message = "Title is required")
+    private String title;
+    @NotNull(message = "Amount is required")
+    @Positive(message = "Amount must be positive")
     private Double amount;
-
-    public ExpenseRequest() {
-    }
-
-    public ExpenseRequest(String description, Double amount) {
-        this.description = description;
-        this.amount = amount;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
+    
 }

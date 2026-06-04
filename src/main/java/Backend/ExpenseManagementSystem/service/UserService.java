@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import Backend.ExpenseManagementSystem.dto.RegisterRequest;
 import Backend.ExpenseManagementSystem.entity.User;
 import Backend.ExpenseManagementSystem.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +17,13 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User addUser(User user) {
+    public User addUser(RegisterRequest user) {
         log.info("Adding new user: {}", user.getName());
-        return userRepository.save(user);
+        User userEntity = new User();
+        userEntity.setName(user.getName());
+        userEntity.setEmail(user.getEmail());
+        userEntity.setPassword(user.getPassword());
+        return userRepository.save(userEntity);
     }
 
     public Iterable<User> getAllUsers() {
@@ -34,14 +39,13 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User updateUser(Long id, User updatedUser) {
-        return userRepository.findById(id).map(user -> {
-            user.setName(updatedUser.getName());
-            user.setEmail(updatedUser.getEmail());
-            return userRepository.save(user);
-        }).orElse(null);
-    }
-
+    // public User updateUser(Long id, User updatedUser) {
+    //     return userRepository.findById(id).map(user -> {
+    //         user.setName(updatedUser.getName());
+    //         user.setEmail(updatedUser.getEmail());
+    //         return userRepository.save(user);
+    //     }).orElse(null);
+    // }
     public User getCurrentUser() {
         Authentication authentication
                 = SecurityContextHolder.getContext().getAuthentication();

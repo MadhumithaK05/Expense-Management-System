@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import Backend.ExpenseManagementSystem.entity.Expense;
+import Backend.ExpenseManagementSystem.dto.ExpenseRequest;
+import Backend.ExpenseManagementSystem.dto.ExpenseResponse;
 import Backend.ExpenseManagementSystem.service.ExpenseService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/v1/expenses")
@@ -27,19 +29,19 @@ public class ExpenseController {
 
     //insert expense
     @PostMapping("")
-    ResponseEntity<Expense> addExpense(@RequestBody Expense expense) {
-        return new ResponseEntity<>(expenseService.addExpense(expense), HttpStatus.CREATED);
+    ResponseEntity<ExpenseResponse> addExpense(@Valid @RequestBody ExpenseRequest body) {
+        return new ResponseEntity<>(expenseService.addExpense(body), HttpStatus.CREATED);
     }
 
     //get all expenses
     @GetMapping("")
-    ResponseEntity<Iterable<Expense>> getAllExpenses() {
+    ResponseEntity<Iterable<ExpenseResponse>> getAllExpenses() {
         return new ResponseEntity<>(expenseService.getMyExpenses(), HttpStatus.OK);
     }
 
     //get expense by id
     @GetMapping("/{id}")
-    ResponseEntity<Expense> getExpense(@PathVariable Long id) {
+    ResponseEntity<ExpenseResponse> getExpense(@PathVariable Long id) {
         return new ResponseEntity<>(expenseService.getExpenseById(id), HttpStatus.OK);
     }
 
@@ -52,12 +54,12 @@ public class ExpenseController {
 
     //update expense by id
     @PutMapping("/{id}")
-    ResponseEntity<Expense> updateExpense(@RequestBody Expense expense, @PathVariable Long id) {
-        return new ResponseEntity<>(expenseService.updateExpense(id, expense), HttpStatus.OK);
+    ResponseEntity<ExpenseResponse> updateExpense(@RequestBody ExpenseRequest body, @PathVariable Long id) {
+        return new ResponseEntity<>(expenseService.updateExpense(id, body), HttpStatus.OK);
     }
 
     @GetMapping("/page")
-    ResponseEntity<Page<Expense>> getExpensesInPage(@RequestParam int page, @RequestParam int size) {
-        return new ResponseEntity<>(expenseService.getExpensesinPage(page, size), HttpStatus.OK);
+    ResponseEntity<Page<ExpenseResponse>> getExpensesInPage(@RequestParam int page, @RequestParam int size) {
+        return new ResponseEntity<>(expenseService.getExpensesInPage(page, size), HttpStatus.OK);
     }
 }
